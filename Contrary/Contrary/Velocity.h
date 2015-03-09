@@ -1,10 +1,10 @@
 #pragma once
-class Coordinates
+class Velocity
 {
 public:
-	Coordinates();
-	Coordinates(double x, double y);
-	~Coordinates();
+	Velocity(double x, double y);
+	Velocity();
+	~Velocity();
 	double X();
 	double Y();
 	void SetX(double x);

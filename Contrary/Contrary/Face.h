@@ -1,14 +1,18 @@
 #pragma once
+
+#include "Coordinates.h"
+
 class Face
 {
 public:
-	Face(double a, double b, double c);
+	Face();
+	Face(Coordinates* a, Coordinates* b, Coordinates* c);
 	~Face();
-	double A();
-	double B();
-	double C();
+	const Coordinates* A();
+	const Coordinates* B();
+	const Coordinates* C();
 
 private:
-	double* m_a, m_b, m_c;
+	Coordinates* m_a, * m_b, * m_c;
 };
 
