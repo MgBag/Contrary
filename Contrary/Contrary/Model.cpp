@@ -35,6 +35,8 @@ Model::Model(string path)
 						&m_vertecies[stoi(values[2].substr(0, values[2].find('/'))) - 1],
 						&m_vertecies[stoi(values[3].substr(0, values[3].find('/'))) - 1]
 						));
+
+					m_alVertecies;
 				}
 			}
 		}
@@ -59,4 +61,9 @@ const vector<Coordinates>* Model::Vertecies()
 const vector<Face>* Model::Faces()
 {
 	return &m_faces;
+}
+
+int Model::AlVerteciesLength()
+{
+	return m_faces.size();
 }

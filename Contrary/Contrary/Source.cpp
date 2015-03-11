@@ -58,7 +58,9 @@ int main()
 	}
 
 	Model m = Model("c:/temp/testobj.obj");
- 
+	
+	al_draw_
+
 	al_flip_display();
 
 	system("pause");
