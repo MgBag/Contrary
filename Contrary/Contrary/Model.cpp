@@ -1,10 +1,44 @@
 #include "Model.h"
 
-
-Model::Model(vector<Coordinates> polygons, vector<Face> faces)
+Model::Model(string path)
 {
-	m_polygons = polygons;
-	m_faces = faces;
+	std::ifstream ifs(path);
+	string line;
+
+	if (ifs.is_open())
+	{
+		while (getline(ifs, line))
+		{
+			vector<string> values;
+			string item;
+
+			stringstream lineStream(line);
+
+			while (getline(lineStream, item, ' '))
+			{
+				if (!item.empty())
+				{
+					values.push_back(item);
+				}
+			}
+
+			if (values.size())
+			{
+				if (values[0] == "v")
+				{
+					m_vertecies.push_back(Coordinates(stod(values[1]), stod(values[3])));
+				}
+				else if (values[0] == "f")
+				{
+					m_faces.push_back(Face(
+						&m_vertecies[stoi(values[1].substr(0, values[1].find('/'))) - 1],
+						&m_vertecies[stoi(values[2].substr(0, values[2].find('/'))) - 1],
+						&m_vertecies[stoi(values[3].substr(0, values[3].find('/'))) - 1]
+						));
+				}
+			}
+		}
+	}
 }
 
 Model::~Model()
@@ -13,13 +47,13 @@ Model::~Model()
 
 Model::Model()
 {
-	m_polygons = vector<Coordinates>();
+	m_vertecies = vector<Coordinates>();
 	m_faces = vector<Face>();
 }
 
-const vector<Coordinates>* Model::Polygons()
+const vector<Coordinates>* Model::Vertecies()
 {
-	return &m_polygons;
+	return &m_vertecies;
 }
 
 const vector<Face>* Model::Faces()

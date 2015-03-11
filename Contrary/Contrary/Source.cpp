@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Constants.h"
+#include "Model.h"
 
 using namespace std;
 
@@ -55,4 +56,10 @@ int main()
 		system("pause");
 		return -1;
 	}
+
+	Model m = Model("c:/temp/testobj.obj");
+ 
+	al_flip_display();
+
+	system("pause");
 }

@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(Model model, ALLEGRO_COLOR color, double x, double y, double mass = 10.0, double friction = 1.0, double bounciness = 0.0, double rotation = 0.0)
+Entity::Entity(Model model, ALLEGRO_COLOR color, double x, double y, double mass, double friction, double bounciness, double rotation)
 {
 	m_model = model;
 	m_color = color;
