@@ -16,18 +16,18 @@ using namespace std;
 class Model
 {
 public:
-	Model(string path);
+	Model(string path, double scale = 1);
 	~Model();
 	Model();
 
-	const vector<Coordinates>* Vertecies();
-	const vector<Face>* Faces();
-	const ALLEGRO_VERTEX** AlVertecies();
+	vector<Coordinates>* Vertecies();
+	vector<Face>* Faces();
+	ALLEGRO_VERTEX** AlVertecies();
 	int AlVerteciesLength();
 
 private:
 	vector<Coordinates> m_vertecies;
 	vector<Face> m_faces;
-	ALLEGRO_VERTEX m_alVertecies[];
+	ALLEGRO_VERTEX* m_alVertecies;
 };
 
