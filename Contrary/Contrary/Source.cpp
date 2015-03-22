@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Constants.h"
+#include "Model.h"
 
 using namespace std;
 
@@ -41,10 +42,11 @@ int main()
 
 	eventQueue = al_create_event_queue();
 	if (!eventQueue)
+
 	{
 		cout << "Failed to initiate event queue\n";
 		system("pause");
-		return -1; 
+		return -1;
 	}
 
 	display = al_create_display(SCREEN_W, SCREEN_H);
@@ -55,4 +57,30 @@ int main()
 		system("pause");
 		return -1;
 	}
+
+	Model m = Model("c:/temp/testobj.obj", 50);
+
+	system("pause");
+}
+
+void IO()
+{
+	////Regular drawing
+	////Make sure this only gets called once (big collection of arrays needed in that case)
+	//al_draw_prim((*m.AlVertecies()), NULL, NULL, 0, m.AlVerteciesLength(), ALLEGRO_PRIM_TRIANGLE_LIST);
+
+	//// Wire frame
+	//vector<Face>* faces = m.Faces();
+
+	//for (vector<Face>::iterator face = faces->begin(); face < faces->end(); ++face)
+	//{
+	//	al_draw_triangle(face->A()->X(), face->A()->Y(), face->B()->X(), face->B()->Y(), face->C()->X(), face->C()->Y(), al_map_rgb(20, 220, 20), 1.0);
+	//}
+
+	//al_flip_display();
+}
+
+void Physics()
+{
+
 }
