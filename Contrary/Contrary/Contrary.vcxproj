@@ -74,6 +74,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Face.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Render.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Velocity.cpp" />
   </ItemGroup>
@@ -83,7 +84,11 @@
     <ClInclude Include="Face.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Render.h" />
     <ClInclude Include="Velocity.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram4.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

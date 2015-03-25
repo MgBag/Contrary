@@ -1,9 +1,5 @@
 #pragma once
 #include "Constants.h"
-#include "Model.h"
-#include "Coordinates.h"
-#include "Velocity.h"
-#include <allegro5\color.h>
 
 using namespace std;
 
@@ -38,7 +34,7 @@ public:
 	//void SetVelocity(Velocity velocity);
 	//void SetAngularVelocity(double angularVelocity);
 
-private:
+protected:
 	entityid m_eid;
 	//Model m_model;
 	//ALLEGRO_COLOR m_color;

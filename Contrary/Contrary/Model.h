@@ -16,7 +16,7 @@ using namespace std;
 class Model
 {
 public:
-	Model(string path, double scale = 1);
+	Model(string path);
 	~Model();
 	Model();
 
