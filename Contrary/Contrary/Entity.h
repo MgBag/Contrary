@@ -10,11 +10,11 @@ using namespace std;
 class Entity
 {
 public:
-	Entity(objectid oid) : m_oid(oid) {};
+	Entity(entityid eid) : m_eid(eid) {};
 	Entity();
 	~Entity();
 
-	objectid Oid();
+	entityid Eid();
 
 	//Model* GetModel();
 	//ALLEGRO_COLOR Color();
@@ -39,7 +39,7 @@ public:
 	//void SetAngularVelocity(double angularVelocity);
 
 private:
-	objectid m_oid;
+	entityid m_eid;
 	//Model m_model;
 	//ALLEGRO_COLOR m_color;
 	//Coordinates m_centerOfMass;

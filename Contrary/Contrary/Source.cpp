@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 int main()
 {
 	ALLEGRO_DISPLAY* display = 0;
@@ -49,7 +50,7 @@ int main()
 		return -1;
 	}
 
-	display = al_create_display(SCREEN_W, SCREEN_H);
+	display = al_create_display(10, 10);
 	if (!display)
 	{
 		cout << "Failed to initiate display \n";

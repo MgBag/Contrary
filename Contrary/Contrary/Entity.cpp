@@ -10,7 +10,7 @@ Entity::~Entity()
 {
 }
 
-objectid Entity::Oid()
+entityid Entity::Eid()
 {
-	return m_oid;
+	return m_eid;
 }

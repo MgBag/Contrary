@@ -12,4 +12,3 @@ public:
 private:
 	double m_x, m_y;
 };
-
