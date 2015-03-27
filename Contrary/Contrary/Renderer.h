@@ -3,12 +3,12 @@
 #include "Entity.h"
 #include "Model.h"
 
-class Render : protected Entity
+class Renderer : protected Entity
 {
 public:
-	Render(entityid eid, Model* model, ALLEGRO_COLOR color);
-	Render();
-	~Render();
+	Renderer(entityid eid, Model* model, ALLEGRO_COLOR color);
+	Renderer();
+	~Renderer();
 
 	const Model* GetModel();
 	ALLEGRO_COLOR GetColor();

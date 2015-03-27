@@ -1,6 +1,6 @@
 #include "Model.h"
 
-Model::Model(string path, double scale)
+Model::Model(string path)
 {
 	std::ifstream ifs(path);
 	string line;
@@ -26,8 +26,7 @@ Model::Model(string path, double scale)
 			{
 				if (values[0] == "v")
 				{
-					// TODO : REMOVE THE OFFSET HERE!
-					m_vertecies.push_back(Coordinates(stod(values[1]) * scale + 100, stod(values[3]) * scale + 100));
+					m_vertecies.push_back(Coordinates(stod(values[1]), stod(values[3])));
 				}
 				else if (values[0] == "f")
 				{

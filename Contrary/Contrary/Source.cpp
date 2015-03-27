@@ -59,7 +59,7 @@ int main()
 		return -1;
 	}
 
-	Model m = Model("c:/temp/testobj.obj", 50);
+	Model m = Model("c:/temp/testobj.obj");
 
 	system("pause");
 }

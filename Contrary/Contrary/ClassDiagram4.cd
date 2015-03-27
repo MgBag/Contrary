@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="Entity" Collapsed="true">
-    <Position X="2.25" Y="0.5" Width="1.5" />
+    <Position X="5" Y="1.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EAAAAAAAAAAAAAAQAAAAAAAAACAAAIAAAAAAAAAAAAA=</HashCode>
       <FileName>Entity.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Face" Collapsed="true">
-    <Position X="4" Y="0.5" Width="1.5" />
+    <Position X="2.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAABAAAQAAABAAAAAAAoAEAAAA=</HashCode>
       <FileName>Face.h</FileName>
@@ -35,8 +35,64 @@
       <FileName>Coordinates.h</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="Renderer" Collapsed="true">
+    <Position X="6.5" Y="2.25" Width="1.5" />
+    <InheritanceLine Type="Entity" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.75" Y="1.812" />
+        <Point X="5.75" Y="2.562" />
+        <Point X="6.5" Y="2.562" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AgAgAAAAAACAAAAAAAAAAAAAAAAAAACAAAiAAAgAAAA=</HashCode>
+      <FileName>Renderer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Collider" Collapsed="true">
+    <Position X="6.5" Y="3.25" Width="1.5" />
+    <InheritanceLine Type="Entity" ManuallyRouted="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.75" Y="1.812" />
+        <Point X="5.75" Y="3.625" />
+        <Point X="6.5" Y="3.625" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAQAAAAAAAQAAAAAAQAAAA=</HashCode>
+      <FileName>Collider.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Transform" Collapsed="true">
+    <Position X="6.5" Y="4.25" Width="1.5" />
+    <InheritanceLine Type="Entity" FixedToPoint="true">
+      <Path>
+        <Point X="5.75" Y="1.812" />
+        <Point X="5.75" Y="4.625" />
+        <Point X="6.5" Y="4.625" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACCAACAAAAAAAAQAAAAAAAgAIAAAAAEAAIA=</HashCode>
+      <FileName>Transform.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Physical" Collapsed="true">
+    <Position X="6.5" Y="5.25" Width="1.5" />
+    <InheritanceLine Type="Entity" FixedToPoint="true">
+      <Path>
+        <Point X="5.75" Y="1.812" />
+        <Point X="5.75" Y="5.562" />
+        <Point X="6.5" Y="5.562" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAIAQEAIAAABgAEQAAAAAEwBERCsYAAAABAAAAEAA=</HashCode>
+      <FileName>Physical.h</FileName>
+    </TypeIdentifier>
+  </Class>
   <Typedef Name="entityid" Collapsed="true">
-    <Position X="0.5" Y="2.75" Width="1.5" />
+    <Position X="0.5" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Constants.h</FileName>
