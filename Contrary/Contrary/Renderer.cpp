@@ -15,7 +15,7 @@ Renderer::~Renderer()
 {
 }
 
-const Model* Renderer::GetModel()
+Model* Renderer::GetModel()
 {
 	return m_model;
 }

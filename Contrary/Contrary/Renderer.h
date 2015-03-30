@@ -10,7 +10,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	const Model* GetModel();
+	Model* GetModel();
 	ALLEGRO_COLOR GetColor();
 	void SetColor(ALLEGRO_COLOR color);
 private:

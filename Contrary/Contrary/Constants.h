@@ -1,4 +1,5 @@
+#pragma once
 typedef double entityid;
 
-const int SCREEN_H = 720;
-const int SCREEN_W = 1280;
+extern int SCREEN_H;
+extern int SCREEN_W;
