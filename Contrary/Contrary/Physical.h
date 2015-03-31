@@ -9,6 +9,7 @@ class Physical :
 public:
 	Physical(entityid eid, bool moveable = true, double mass = 1.0, double friction = 1.0, double bounciness = 0.0, double angularVelocity = 0.0, double velX = 0.0, double velY = 0.0, double cenX = 0.0, double cenY = 0.0);
 	~Physical();
+	Physical();
 
 	Coordinates* GetCenterOfMass();
 	Velocity* GetVelocity();
@@ -27,7 +28,6 @@ public:
 	void SetAngularVelocity(double angularVelocity);
 
 private:
-	entityid m_eid;
 	Coordinates m_centerOfMass;
 	Velocity m_velocity;
 	bool m_moveable;

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void Physics(map<entityid, Collider> colliderMap, map<entityid, Transform> transformMap, map<entityid, Physical> physicalMap);
+void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap);
 void Output(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap);
 
 int main()
@@ -86,7 +86,7 @@ int main()
 	system("pause");
 }
 
-void Physics(map<entityid, Collider> colliderMap, map<entityid, Transform> transformMap, map<entityid, Physical> physicalMap)
+void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
 {
 }
 

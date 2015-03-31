@@ -91,7 +91,7 @@
       <FileName>Physical.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Typedef Name="entityid" Collapsed="true">
+  <Typedef Name="double" Collapsed="true">
     <Position X="0.5" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>

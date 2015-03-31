@@ -18,6 +18,10 @@ Physical::~Physical()
 {
 }
 
+Physical::Physical()
+{
+}
+
 Coordinates* Physical::GetCenterOfMass()
 {
 	return &m_centerOfMass;
