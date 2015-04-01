@@ -23,7 +23,6 @@ bool Quit = false;
 
 int main()
 {
-	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
 	// Initialze Allegro and her pluggins
 	if (!al_init())
 	{
@@ -53,13 +52,7 @@ int main()
 		return -1;
 	}
 
-	eventQueue = al_create_event_queue();
-	if (!eventQueue)
-	{
-		cout << "Failed to initiate event queue\n";
-		system("pause");
-		return -1;
-	}
+
 
 	vector<Model> models;
 	map<entityid, Renderer> renderMap;
@@ -73,7 +66,10 @@ int main()
 	thread display(Display, &renderMap, &transformMap);
 	thread physics(Physics, &colliderMap, &transformMap, &physicalMap);
 
-	system("pause");
+	display.join();
+	physics.join();
+
+	return 0;
 }
 
 void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
@@ -83,6 +79,8 @@ void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* tra
 void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap)
 {
 	ALLEGRO_DISPLAY* display = 0;
+	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
+	ALLEGRO_TIMER* timer = 0;
 
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
@@ -91,43 +89,74 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 		system("pause");
 	}
 
+	eventQueue = al_create_event_queue();
+	if (!eventQueue)
+	{
+		cout << "Failed to initiate event queue\n";
+		system("pause");
+	}
+
+	timer = al_create_timer(1 / FPS);
+	if (!timer)
+	{
+		cout << "Failed to initiate timer\n";
+		system("pause");
+	}
+	al_start_timer(timer);
+
+	al_register_event_source(eventQueue, al_get_display_event_source(display));
+	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
+
 	while (!Quit)
 	{
-		al_clear_to_color(al_map_rgb(220, 220, 220));
+ 		ALLEGRO_EVENT e;
+		al_wait_for_event(eventQueue, &e);
 
-		for (map<entityid, Renderer>::iterator renderer = renderMap->begin(); renderer != renderMap->end(); ++renderer)
+		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
-			////Regular drawing
-			////Make sure this only gets called once (big collection of arrays needed in that case)
-			//al_draw_prim((*m.AlVertecies()), NULL, NULL, 0, m.AlVerteciesLength(), ALLEGRO_PRIM_TRIANGLE_LIST);
+			al_clear_to_color(al_map_rgb(220, 220, 220));
 
-			// Wire frame
-			vector<Face>* faces = renderer->second.GetModel()->Faces();
-			Transform* transform = &(*transformMap)[renderer->first];
-
-			transform->SetRotation(transform->GetRotation() + 0.01);
-
-			for (vector<Face>::iterator face = faces->begin(); face < faces->end(); ++face)
+			for (map<entityid, Renderer>::iterator renderer = renderMap->begin(); renderer != renderMap->end(); ++renderer)
 			{
-				// x: (x * scalex * cos roation - y * scaley * sin rotation) + posx
-				// y: (x * scalex * sin roation + y * scaley * cos rotation) + posy
-				// Three times for the traingle
-				al_draw_filled_triangle(
-					(face->A()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->A()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
-					(face->A()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->A()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+				////Regular drawing
+				////Make sure this only gets called once (big collection of arrays needed in that case)
+				//al_draw_prim((*m.AlVertecies()), NULL, NULL, 0, m.AlVerteciesLength(), ALLEGRO_PRIM_TRIANGLE_LIST);
 
-					(face->B()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->B()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
-					(face->B()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->B()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+				// Wire frame
+				vector<Face>* faces = renderer->second.GetModel()->Faces();
+				Transform* transform = &(*transformMap)[renderer->first];
 
-					(face->C()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->C()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
-					(face->C()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->C()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+				transform->SetRotation(transform->GetRotation() + 0.01);
 
-					renderer->second.GetColor());
+				for (vector<Face>::iterator face = faces->begin(); face < faces->end(); ++face)
+				{
+					// x: (x * scalex * cos roation - y * scaley * sin rotation) + posx
+					// y: (x * scalex * sin roation + y * scaley * cos rotation) + posy
+					// Three times for the traingle
+					al_draw_filled_triangle(
+						(face->A()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->A()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
+						(face->A()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->A()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+
+						(face->B()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->B()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
+						(face->B()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->B()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+
+						(face->C()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->C()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
+						(face->C()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->C()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+
+						renderer->second.GetColor());
+				}
 			}
-		}
 
-		al_flip_display();
+			al_flip_display();
+		}
+		else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+		{
+			Quit = true;
+		}
 	}
+
+	al_destroy_display(display);
+	al_destroy_event_queue(eventQueue);
 }
 
 void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map<entityid, Collider>& colliderMap, map<entityid, Transform>& transformMap, map<entityid, Physical>& physicalMap)
@@ -140,7 +169,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
 
-	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	/*renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(200, 100), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
@@ -493,7 +522,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(1200, 600), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
-	++eid;
+	++eid;*/
 }
 
 void InitModels(vector<Model>& models)
