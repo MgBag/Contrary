@@ -26,7 +26,7 @@ Model::Model(string path)
 			{
 				if (values[0] == "v")
 				{
-					m_vertecies.push_back(Coordinates(stod(values[1]), stod(values[3])));
+					m_vertecies.push_back(Coordinates(stod(values[1]), stod(values[2])));
 				}
 				else if (values[0] == "f")
 				{
