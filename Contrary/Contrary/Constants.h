@@ -6,3 +6,4 @@ extern int SCREEN_W;
 extern int TICK;
 extern double TIME_SCALE;
 extern double FPS;
+extern double GRAVITY;

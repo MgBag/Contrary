@@ -64,16 +64,55 @@ int main()
 	InitEntities(models, renderMap, colliderMap, transformMap, physicalMap);
 
 	thread display(Display, &renderMap, &transformMap);
-	//thread physics(Physics, &colliderMap, &transformMap, &physicalMap);
+	thread physics(Physics, &colliderMap, &transformMap, &physicalMap);
 
 	display.join();
-	//physics.join();
+	physics.join();
 
 	return 0;
 }
 
 void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
 {
+	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
+	ALLEGRO_TIMER* timer = 0;
+
+	eventQueue = al_create_event_queue();
+	if (!eventQueue)
+	{
+		cout << "Failed to initiate event queue\n";
+		system("pause");
+	}
+
+	timer = al_create_timer(1.0 / TICK);
+	if (!timer)
+	{
+		cout << "Failed to initiate timer\n";
+		system("pause");
+	}
+	al_start_timer(timer);
+
+	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
+
+
+	while (!Quit)
+	{
+		ALLEGRO_EVENT e;
+		al_wait_for_event(eventQueue, &e);
+
+		if (e.type == ALLEGRO_EVENT_TIMER)
+		{
+			for (map<entityid, Physical>::iterator phys = physicalMap->begin(); phys != physicalMap->end(); ++phys)
+			{
+				Velocity* vel = phys->second.GetVelocity();
+				Coordinates* pos = (*transformMap)[phys->first].GetPosition();
+
+				// Add gravity to Y: (old y + gravity/s / tick) * time_scale
+				vel->SetY((vel->Y() + GRAVITY / TICK) * TIME_SCALE);
+				pos->SetY(pos->Y() + vel->Y());
+			}
+		}
+	}
 }
 
 void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap)
@@ -126,8 +165,6 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 				vector<Face>* faces = renderer->second.GetModel()->Faces();
 				Transform* transform = &(*transformMap)[renderer->first];
 
-				transform->SetRotation(transform->GetRotation() + 0.01);
-
 				for (vector<Face>::iterator face = faces->begin(); face < faces->end(); ++face)
 				{
 					// x: (x * scalex * cos roation - y * scaley * sin rotation) + posx
@@ -165,367 +202,367 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	Model* m = &models[0];
 
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	transformMap[eid] = Transform(eid, Coordinates(500, 350), Coordinates(2, 2), 0);
+	transformMap[eid] = Transform(eid, Coordinates(100, 100), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
 
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(200, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(300, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(400, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(500, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(600, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(700, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(800, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(900, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1000, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1100, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1200, 100), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(100, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(200, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(300, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(400, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(500, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(600, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(700, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(800, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(900, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1000, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1100, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1200, 200), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(100, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(200, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(300, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(400, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(500, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(600, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(700, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(800, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(900, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1000, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1100, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1200, 300), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(100, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(200, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(300, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(400, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(500, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(600, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(700, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(800, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(900, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1000, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1100, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1200, 400), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(100, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(200, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(300, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(400, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(500, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(600, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(700, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(800, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(900, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1000, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1100, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1200, 500), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(100, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(200, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(300, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(400, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(500, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(600, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(700, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(800, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(900, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1000, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1100, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
-
-	//renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	//transformMap[eid] = Transform(eid, Coordinates(1200, 600), Coordinates(10, 10), 0);
-	//physicalMap[eid] = Physical(eid, false);
-	//++eid;
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(200, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(300, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(400, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(500, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(600, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(700, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(800, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(900, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1000, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1100, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1200, 100), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(100, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(200, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(300, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(400, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(500, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(600, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(700, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(800, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(900, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1000, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1100, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1200, 200), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(100, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(200, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(300, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(400, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(500, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(600, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(700, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(800, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(900, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1000, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1100, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1200, 300), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(100, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(200, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(300, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(400, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(500, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(600, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(700, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(800, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(900, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1000, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1100, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1200, 400), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(100, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(200, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(300, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(400, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(500, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(600, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(700, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(800, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(900, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1000, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1100, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1200, 500), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(100, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(200, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(300, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(400, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(500, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(600, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(700, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(800, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(900, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1000, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1100, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
+
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	transformMap[eid] = Transform(eid, Coordinates(1200, 600), Coordinates(10, 10), 0);
+	physicalMap[eid] = Physical(eid, false);
+	++eid;
 }
 
 void InitModels(vector<Model>& models)
 {
-	models.push_back(Model("C:/temp/high.obj"));
+	models.push_back(Model("C:/temp/testobj.obj"));
 }
