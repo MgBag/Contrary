@@ -94,7 +94,6 @@ void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* tra
 
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 
-
 	while (!Quit)
 	{
 		ALLEGRO_EVENT e;
@@ -104,12 +103,15 @@ void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* tra
 		{
 			for (map<entityid, Physical>::iterator phys = physicalMap->begin(); phys != physicalMap->end(); ++phys)
 			{
-				Velocity* vel = phys->second.GetVelocity();
-				Coordinates* pos = (*transformMap)[phys->first].GetPosition();
+				if (phys->second.GetMoveable())
+				{
+					Velocity* vel = phys->second.GetVelocity();
+					Coordinates* pos = (*transformMap)[phys->first].GetPosition();
 
-				// Add gravity to Y: (old y + gravity/s / tick) * time_scale
-				vel->SetY((vel->Y() + GRAVITY / TICK) * TIME_SCALE);
-				pos->SetY(pos->Y() + vel->Y());
+					// Add gravity to Y: (old y + gravity/s / tick) * time_scale
+					vel->SetY((vel->Y() + GRAVITY / TICK) * TIME_SCALE);
+					pos->SetY(pos->Y() + vel->Y());
+				}
 			}
 		}
 	}
@@ -157,11 +159,6 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 
 			for (map<entityid, Renderer>::iterator renderer = renderMap->begin(); renderer != renderMap->end(); ++renderer)
 			{
-				////Regular drawing
-				////Make sure this only gets called once (big collection of arrays needed in that case)
-				//al_draw_prim((*m.AlVertecies()), NULL, NULL, 0, m.AlVerteciesLength(), ALLEGRO_PRIM_TRIANGLE_LIST);
-
-				// Wire frame
 				vector<Face>* faces = renderer->second.GetModel()->Faces();
 				Transform* transform = &(*transformMap)[renderer->first];
 
@@ -203,10 +200,10 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(100, 100), Coordinates(10, 10), 0);
-	physicalMap[eid] = Physical(eid, false);
+	physicalMap[eid] = Physical(eid, true);
 	++eid;
 
-	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	/*renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(200, 100), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
@@ -560,6 +557,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	transformMap[eid] = Transform(eid, Coordinates(1200, 600), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
+	*/
 }
 
 void InitModels(vector<Model>& models)
