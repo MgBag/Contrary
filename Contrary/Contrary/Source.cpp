@@ -178,6 +178,53 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 						(face->C()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->C()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
 
 						renderer->second.GetColor(), 1.0);
+
+
+					// Get the three vectors counterclockwise (get the delta's)
+					// Project them over a given vector [1,3] for example
+					// Draw them all with an offset
+
+					// Proj a onto b.
+					// dp = a.x*b.x + a.y*b.y; 
+					// proj.x = (dp / (b.x*b.x + b.y*b.y)) * b.x;
+					// proj.y = (dp / (b.x*b.x + b.y*b.y)) * b.y;
+
+					Coordinates toProj = Coordinates(1, 3);
+
+					Coordinates deltaA = (*face->A()) - face->B();
+					Coordinates deltaB = (*face->B()) - face->C();
+					Coordinates deltaC = (*face->C()) - face->A();
+
+					double dpA = deltaA.X() * toProj.X() + deltaA.Y() * toProj.Y();
+					double dpB = deltaB.X() * toProj.X() + deltaB.Y() * toProj.Y();
+					double dpC = deltaC.X() * toProj.X() + deltaC.Y() * toProj.Y();
+
+					Coordinates projA(dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+					Coordinates projB(dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+					Coordinates projC(dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+
+					double o1 = 20, o2 = 30, o3 = 40;
+
+					al_draw_line(
+						transform->GetPosition()->X() + o1,
+						transform->GetPosition()->Y(),
+						projA.X() + transform->GetPosition()->X() + o1,
+						projA.Y() + transform->GetPosition()->Y(),
+						al_map_rgb(20, 220, 20), 1);
+
+					al_draw_line(
+						transform->GetPosition()->X() + o2,
+						transform->GetPosition()->Y(),
+						projB.X() + transform->GetPosition()->X() + o2,
+						projB.Y() + transform->GetPosition()->Y(),
+						al_map_rgb(20, 220, 20), 1);
+
+					al_draw_line(
+						transform->GetPosition()->X() + o3,
+						transform->GetPosition()->Y(),
+						projC.X() + transform->GetPosition()->X() + o3,
+						projC.Y() + transform->GetPosition()->Y(),
+						al_map_rgb(20, 220, 20), 1);
 				}
 			}
 
@@ -199,8 +246,8 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	Model* m = &models[0];
 
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	transformMap[eid] = Transform(eid, Coordinates(100, 100), Coordinates(10, 10), 0);
-	physicalMap[eid] = Physical(eid, true);
+	transformMap[eid] = Transform(eid, Coordinates(400, 200), Coordinates(25, 25), 0);
+	physicalMap[eid] = Physical(eid, false);
 	++eid;
 
 	/*renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
@@ -562,5 +609,5 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 
 void InitModels(vector<Model>& models)
 {
-	models.push_back(Model("C:/temp/testobj.obj"));
+	models.push_back(Model("C:/temp/triangle.obj"));
 }

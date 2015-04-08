@@ -36,3 +36,13 @@ void Coordinates::SetY(double y)
 {
 	m_y = y;
 }
+
+Coordinates Coordinates::operator-(Coordinates* sub)
+{
+	return Coordinates(this->m_x - sub->m_x, this->m_y - sub->m_y);
+}
+
+Coordinates Coordinates::operator+(Coordinates* sub)
+{
+	return Coordinates(this->m_x + sub->m_x, this->m_y + sub->m_y);
+}
