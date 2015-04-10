@@ -148,6 +148,9 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 
+	Coordinates toProj = Coordinates(1, 1);
+
+
 	while (!Quit)
 	{
  		ALLEGRO_EVENT e;
@@ -189,30 +192,44 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 					// proj.x = (dp / (b.x*b.x + b.y*b.y)) * b.x;
 					// proj.y = (dp / (b.x*b.x + b.y*b.y)) * b.y;
 
-					Coordinates toProj = Coordinates(1, 3);
 
+					// Sides
 					Coordinates deltaA = (*face->A()) - face->B();
 					Coordinates deltaB = (*face->B()) - face->C();
 					Coordinates deltaC = (*face->C()) - face->A();
 
-					double dpA = deltaA.X() * toProj.X() + deltaA.Y() * toProj.Y();
-					double dpB = deltaB.X() * toProj.X() + deltaB.Y() * toProj.Y();
-					double dpC = deltaC.X() * toProj.X() + deltaC.Y() * toProj.Y();
+					double dpA = deltaA.X() * transform->GetScale()->X() * toProj.X() + deltaA.Y() * transform->GetScale()->Y() * toProj.Y();
+					double dpB = deltaB.X() * transform->GetScale()->X() * toProj.X() + deltaB.Y() * transform->GetScale()->Y() * toProj.Y();
+					double dpC = deltaC.X() * transform->GetScale()->X() * toProj.X() + deltaC.Y() * transform->GetScale()->Y() * toProj.Y();
 
 					Coordinates projA(dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
 					Coordinates projB(dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
 					Coordinates projC(dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
 
-					double o1 = 20, o2 = 30, o3 = 40;
+					double o1 = 100, o2 = 110, o3 = 120;
 
-					al_draw_line(
-						transform->GetPosition()->X() + o1,
-						transform->GetPosition()->Y(),
-						projA.X() + transform->GetPosition()->X() + o1,
-						projA.Y() + transform->GetPosition()->Y(),
+					al_draw_line(																	// Normal offset
+						transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+						transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+						(projA.X() * -1) + transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+						(projA.Y() * -1) + transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
 						al_map_rgb(20, 220, 20), 1);
 
 					al_draw_line(
+						transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+						transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+						(projB.X() * -1) + transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+						(projB.Y() * -1) + transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+						al_map_rgb(20, 220, 220), 1);
+
+					al_draw_line(
+						transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+						transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+						(projC.X() * -1) + transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+						(projC.Y() * -1) + transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+						al_map_rgb(220, 220, 20), 1);
+
+				/*	al_draw_line(
 						transform->GetPosition()->X() + o2,
 						transform->GetPosition()->Y(),
 						projB.X() + transform->GetPosition()->X() + o2,
@@ -224,9 +241,13 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 						transform->GetPosition()->Y(),
 						projC.X() + transform->GetPosition()->X() + o3,
 						projC.Y() + transform->GetPosition()->Y(),
-						al_map_rgb(20, 220, 20), 1);
+						al_map_rgb(20, 220, 20), 1);*/
+
+					al_draw_line(0, 0, toProj.X() * 1000, toProj.Y() * 1000, al_map_rgb(20, 220, 20), 1);
 				}
 			}
+
+			toProj.SetX(toProj.X() + 0.001);
 
 			al_flip_display();
 		}
