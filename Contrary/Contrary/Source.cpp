@@ -159,6 +159,7 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
 			al_clear_to_color(al_map_rgb(20, 20, 20));
+			al_draw_line(0, 0, toProj.X() * 1000, toProj.Y() * 1000, al_map_rgb(20, 220, 20), 1);
 
 			for (map<entityid, Renderer>::iterator renderer = renderMap->begin(); renderer != renderMap->end(); ++renderer)
 			{
@@ -170,6 +171,9 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 					// x: (x * scalex * cos roation - y * scaley * sin rotation) + posx
 					// y: (x * scalex * sin roation + y * scaley * cos rotation) + posy
 					// Three times for the traingle
+
+					// Orrrrr, take the position + point offset to other point -> project; take position to offset start point an substract
+
 					al_draw_triangle(
 						(face->A()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->A()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
 						(face->A()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->A()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
@@ -194,40 +198,76 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 
 
 					// Sides
-					Coordinates deltaA = (*face->A()) - face->B();
-					Coordinates deltaB = (*face->B()) - face->C();
-					Coordinates deltaC = (*face->C()) - face->A();
+					// TODO : Maybe intergrade this
+					Coordinates deltaA = (*face->B()) - face->A();
+					Coordinates deltaB = (*face->C()) - face->B();
+					Coordinates deltaC = (*face->A()) - face->C();
 
-					double dpA = deltaA.X() * transform->GetScale()->X() * toProj.X() + deltaA.Y() * transform->GetScale()->Y() * toProj.Y();
-					double dpB = deltaB.X() * transform->GetScale()->X() * toProj.X() + deltaB.Y() * transform->GetScale()->Y() * toProj.Y();
-					double dpC = deltaC.X() * transform->GetScale()->X() * toProj.X() + deltaC.Y() * transform->GetScale()->Y() * toProj.Y();
+					double dpA = (deltaA.X() * transform->GetScale()->X()) * toProj.X() + (deltaA.Y() * transform->GetScale()->Y()) * toProj.Y();
+					double dpB = (deltaB.X() * transform->GetScale()->X()) * toProj.X() + (deltaB.Y() * transform->GetScale()->Y()) * toProj.Y();
+					double dpC = (deltaC.X() * transform->GetScale()->X()) * toProj.X() + (deltaC.Y() * transform->GetScale()->Y()) * toProj.Y();
 
-					Coordinates projA(dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-					Coordinates projB(dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-					Coordinates projC(dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(), dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+					Coordinates projA(
+						dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
+						dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
 
-					double o1 = 100, o2 = 110, o3 = 120;
+					Coordinates projB(
+						dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
+						dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
 
-					al_draw_line(																	// Normal offset
-						transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-						transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-						(projA.X() * -1) + transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-						(projA.Y() * -1) + transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-						al_map_rgb(20, 220, 20), 1);
+					Coordinates projC(
+						dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
+						dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
 
-					al_draw_line(
-						transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-						transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-						(projB.X() * -1) + transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-						(projB.Y() * -1) + transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-						al_map_rgb(20, 220, 220), 1);
 
-					al_draw_line(
-						transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-						transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-						(projC.X() * -1) + transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-						(projC.Y() * -1) + transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-						al_map_rgb(220, 220, 20), 1);
+					// Offsets
+					Coordinates OffsetA(transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X(), transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y());
+					Coordinates OffsetB(transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X(), transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y());
+					Coordinates OffsetC(transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X(), transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y());
+
+					double dpOA = OffsetA.X() * toProj.X() + OffsetA.Y() * toProj.Y();
+					double dpOB = OffsetB.X() * toProj.X() + OffsetB.Y() * toProj.Y();
+					double dpOC = OffsetC.X() * toProj.X() + OffsetC.Y() * toProj.Y();
+
+					Coordinates offsetProjA(
+						dpOA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
+						dpOA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+
+					Coordinates offsetprojB(
+						dpOB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
+						dpOB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+
+					Coordinates offsetprojC(
+						dpOC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
+						dpOC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
+
+
+
+					al_draw_line(offsetProjA.X(), offsetProjA.Y(), offsetProjA.X() + projA.X(), offsetProjA.Y() + projA.Y(), al_map_rgb(220, 20, 20), 1);
+					al_draw_line(offsetprojB.X(), offsetprojB.Y(), offsetprojB.X() + projB.X(), offsetprojB.Y() + projB.Y(), al_map_rgb(220, 220, 20), 1);
+					al_draw_line(offsetprojC.X(), offsetprojC.Y(), offsetprojC.X() + projC.X(), offsetprojC.Y() + projC.Y(), al_map_rgb(220, 20, 220), 1);
+
+
+					//al_draw_line(																	// Normal offset
+					//	transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+					//	transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+					//	(projA.X() * -1) + transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+					//	(projA.Y() * -1) + transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+					//	al_map_rgb(20, 220, 20), 1);
+
+					//al_draw_line(
+					//	transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+					//	transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+					//	(projB.X() * -1) + transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+					//	(projB.Y() * -1) + transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+					//	al_map_rgb(20, 220, 220), 1);
+
+					//al_draw_line(
+					//	transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+					//	transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+					//	(projC.X() * -1) + transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
+					//	(projC.Y() * -1) + transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
+					//	al_map_rgb(220, 220, 20), 1);
 
 				/*	al_draw_line(
 						transform->GetPosition()->X() + o2,
@@ -243,13 +283,13 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 						projC.Y() + transform->GetPosition()->Y(),
 						al_map_rgb(20, 220, 20), 1);*/
 
-					al_draw_line(0, 0, toProj.X() * 1000, toProj.Y() * 1000, al_map_rgb(20, 220, 20), 1);
 				}
 			}
 
 			toProj.SetX(toProj.X() + 0.001);
 
 			al_flip_display();
+
 		}
 		else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
@@ -271,7 +311,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
 
-	/*renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(200, 100), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
@@ -625,7 +665,6 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	transformMap[eid] = Transform(eid, Coordinates(1200, 600), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
-	*/
 }
 
 void InitModels(vector<Model>& models)
