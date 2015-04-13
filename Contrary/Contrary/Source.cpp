@@ -14,7 +14,7 @@
 
 using namespace std;
 
-void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap);
+void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap);
 void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap);
 void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map<entityid, Collider>& colliderMap, map<entityid, Transform>& transformMap, map<entityid, Physical>& physicalMap);
 void InitModels(vector<Model>& models);
@@ -64,7 +64,7 @@ int main()
 	InitEntities(models, renderMap, colliderMap, transformMap, physicalMap);
 
 	thread display(Display, &renderMap, &transformMap);
-	thread physics(Physics, &colliderMap, &transformMap, &physicalMap);
+	thread physics(PhysicsThread, &colliderMap, &transformMap, &physicalMap);
 
 	display.join();
 	physics.join();
@@ -72,7 +72,7 @@ int main()
 	return 0;
 }
 
-void Physics(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
+void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
 {
 	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
 	ALLEGRO_TIMER* timer = 0;

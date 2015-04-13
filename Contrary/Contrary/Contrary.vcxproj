@@ -76,6 +76,7 @@
     <ClCompile Include="Face.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Physical.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Constants.cpp" />
@@ -90,6 +91,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Physical.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Velocity.h" />
