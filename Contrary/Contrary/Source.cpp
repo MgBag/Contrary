@@ -15,7 +15,7 @@
 using namespace std;
 
 void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap);
-void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap);
+void DisplayThread(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap);
 void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map<entityid, Collider>& colliderMap, map<entityid, Transform>& transformMap, map<entityid, Physical>& physicalMap);
 void InitModels(vector<Model>& models);
 
@@ -63,7 +63,7 @@ int main()
 	InitModels(models);
 	InitEntities(models, renderMap, colliderMap, transformMap, physicalMap);
 
-	thread display(Display, &renderMap, &transformMap);
+	thread display(DisplayThread, &renderMap, &transformMap);
 	thread physics(PhysicsThread, &colliderMap, &transformMap, &physicalMap);
 
 	display.join();
@@ -117,7 +117,7 @@ void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform
 	}
 }
 
-void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap)
+void DisplayThread(map<entityid, Renderer>* renderMap, map<entityid, Transform>* transformMap)
 {
 	ALLEGRO_DISPLAY* display = 0;
 	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
@@ -143,23 +143,20 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 		cout << "Failed to initiate timer\n";
 		system("pause");
 	}
+
 	al_start_timer(timer);
 
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 
-	Coordinates toProj = Coordinates(1, 1);
-
-
 	while (!Quit)
 	{
- 		ALLEGRO_EVENT e;
+		ALLEGRO_EVENT e;
 		al_wait_for_event(eventQueue, &e);
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
 			al_clear_to_color(al_map_rgb(20, 20, 20));
-			al_draw_line(0, 0, toProj.X() * 1000, toProj.Y() * 1000, al_map_rgb(20, 220, 20), 1);
 
 			for (map<entityid, Renderer>::iterator renderer = renderMap->begin(); renderer != renderMap->end(); ++renderer)
 			{
@@ -172,8 +169,6 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 					// y: (x * scalex * sin roation + y * scaley * cos rotation) + posy
 					// Three times for the traingle
 
-					// Orrrrr, take the position + point offset to other point -> project; take position to offset start point an substract
-
 					al_draw_triangle(
 						(face->A()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->A()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
 						(face->A()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->A()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
@@ -185,104 +180,6 @@ void Display(map<entityid, Renderer>* renderMap, map<entityid, Transform>* trans
 						(face->C()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->C()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
 
 						renderer->second.GetColor(), 1.0);
-
-
-					// Get the three vectors counterclockwise (get the delta's)
-					// Project them over a given vector [1,3] for example
-					// Draw them all with an offset
-
-					// Proj a onto b.
-					// dp = a.x*b.x + a.y*b.y; 
-					// proj.x = (dp / (b.x*b.x + b.y*b.y)) * b.x;
-					// proj.y = (dp / (b.x*b.x + b.y*b.y)) * b.y;
-
-
-					// Sides
-					// TODO : Maybe intergrade this
-					Coordinates deltaA = (*face->B()) - face->A();
-					Coordinates deltaB = (*face->C()) - face->B();
-					Coordinates deltaC = (*face->A()) - face->C();
-
-					double dpA = (deltaA.X() * transform->GetScale()->X()) * toProj.X() + (deltaA.Y() * transform->GetScale()->Y()) * toProj.Y();
-					double dpB = (deltaB.X() * transform->GetScale()->X()) * toProj.X() + (deltaB.Y() * transform->GetScale()->Y()) * toProj.Y();
-					double dpC = (deltaC.X() * transform->GetScale()->X()) * toProj.X() + (deltaC.Y() * transform->GetScale()->Y()) * toProj.Y();
-
-					Coordinates projA(
-						dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
-						dpA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-
-					Coordinates projB(
-						dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
-						dpB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-
-					Coordinates projC(
-						dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
-						dpC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-
-
-					// Offsets
-					Coordinates OffsetA(transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X(), transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y());
-					Coordinates OffsetB(transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X(), transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y());
-					Coordinates OffsetC(transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X(), transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y());
-
-					double dpOA = OffsetA.X() * toProj.X() + OffsetA.Y() * toProj.Y();
-					double dpOB = OffsetB.X() * toProj.X() + OffsetB.Y() * toProj.Y();
-					double dpOC = OffsetC.X() * toProj.X() + OffsetC.Y() * toProj.Y();
-
-					Coordinates offsetProjA(
-						dpOA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
-						dpOA / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-
-					Coordinates offsetprojB(
-						dpOB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
-						dpOB / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-
-					Coordinates offsetprojC(
-						dpOC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.X(),
-						dpOC / (toProj.X() * toProj.X() + toProj.Y() * toProj.Y()) * toProj.Y());
-
-
-
-					al_draw_line(offsetProjA.X(), offsetProjA.Y(), offsetProjA.X() + projA.X(), offsetProjA.Y() + projA.Y(), al_map_rgb(220, 20, 20), 1);
-					al_draw_line(offsetprojB.X(), offsetprojB.Y(), offsetprojB.X() + projB.X(), offsetprojB.Y() + projB.Y(), al_map_rgb(220, 220, 20), 1);
-					al_draw_line(offsetprojC.X(), offsetprojC.Y(), offsetprojC.X() + projC.X(), offsetprojC.Y() + projC.Y(), al_map_rgb(220, 20, 220), 1);
-
-
-					//al_draw_line(																	// Normal offset
-					//	transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-					//	transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-					//	(projA.X() * -1) + transform->GetPosition()->X() + face->A()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-					//	(projA.Y() * -1) + transform->GetPosition()->Y() + face->A()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-					//	al_map_rgb(20, 220, 20), 1);
-
-					//al_draw_line(
-					//	transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-					//	transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-					//	(projB.X() * -1) + transform->GetPosition()->X() + face->B()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-					//	(projB.Y() * -1) + transform->GetPosition()->Y() + face->B()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-					//	al_map_rgb(20, 220, 220), 1);
-
-					//al_draw_line(
-					//	transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-					//	transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-					//	(projC.X() * -1) + transform->GetPosition()->X() + face->C()->X() * transform->GetScale()->X() - toProj.Y() * 10,
-					//	(projC.Y() * -1) + transform->GetPosition()->Y() + face->C()->Y() * transform->GetScale()->Y() + toProj.X() * 10,
-					//	al_map_rgb(220, 220, 20), 1);
-
-				/*	al_draw_line(
-						transform->GetPosition()->X() + o2,
-						transform->GetPosition()->Y(),
-						projB.X() + transform->GetPosition()->X() + o2,
-						projB.Y() + transform->GetPosition()->Y(),
-						al_map_rgb(20, 220, 20), 1);
-
-					al_draw_line(
-						transform->GetPosition()->X() + o3,
-						transform->GetPosition()->Y(),
-						projC.X() + transform->GetPosition()->X() + o3,
-						projC.Y() + transform->GetPosition()->Y(),
-						al_map_rgb(20, 220, 20), 1);*/
-
 				}
 			}
 
@@ -316,7 +213,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
 
-	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
+	/*renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(300, 100), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
 	++eid;
@@ -664,7 +561,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(1200, 600), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
-	++eid;
+	++eid;*/
 }
 
 void InitModels(vector<Model>& models)
