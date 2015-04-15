@@ -137,3 +137,60 @@ double Physics::Pyth(double a, double b)
 {
 	return sqrt(pow(a, 2) + pow(b, 2));
 }
+
+void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
+{
+	for (map<entityid, Collider>::iterator col = colliderMap->begin(); col != colliderMap->end(); ++col)
+	{
+		Model* colMod = col->second.GetCollider();
+		Transform* trans = &(*transformMap)[col->first];
+
+		for (map<entityid, Collider>::iterator colTo = colliderMap->begin(); colTo != colliderMap->end(); ++colTo)
+		{
+			Model* colModTo = col->second.GetCollider();
+			Transform* transTo = &(*transformMap)[colTo->first];
+
+			for (vector<Face>::iterator face = colMod->Faces()->begin(); face != colMod->Faces()->end(); ++face)
+			{
+				Coordinates FaceA(
+					face->A()->X() * trans->GetScale()->X() * cos(trans->GetRotation()) - face->A()->Y() * trans->GetScale()->Y() * sin(trans->GetRotation()),
+					face->A()->X() * trans->GetScale()->X() * sin(trans->GetRotation()) + face->A()->Y() * trans->GetScale()->Y() * cos(trans->GetRotation()));
+				Coordinates FaceB(
+					face->B()->X() * trans->GetScale()->X() * cos(trans->GetRotation()) - face->B()->Y() * trans->GetScale()->Y() * sin(trans->GetRotation()),
+					face->B()->X() * trans->GetScale()->X() * sin(trans->GetRotation()) + face->B()->Y() * trans->GetScale()->Y() * cos(trans->GetRotation()));
+				Coordinates FaceC(
+					face->C()->X() * trans->GetScale()->X() * cos(trans->GetRotation()) - face->C()->Y() * trans->GetScale()->Y() * sin(trans->GetRotation()),
+					face->C()->X() * trans->GetScale()->X() * sin(trans->GetRotation()) + face->C()->Y() * trans->GetScale()->Y() * cos(trans->GetRotation()));
+
+				Coordinates OffsetA = (*trans->GetPosition()) + &FaceA;
+				Coordinates OffsetB = (*trans->GetPosition()) + &FaceB;
+				Coordinates OffsetC = (*trans->GetPosition()) + &FaceC;
+
+				Coordinates deltaA = FaceB - &FaceA;
+				Coordinates deltaB = FaceC - &FaceB;
+				Coordinates deltaC = FaceA - &FaceC;
+
+				for (vector<Face>::iterator faceTo = colModTo->Faces()->begin(); faceTo != colModTo->Faces()->end(); ++faceTo)
+				{
+					Coordinates FaceATo(
+						faceTo->A()->X() * transTo->GetScale()->X() * cos(transTo->GetRotation()) - faceTo->A()->Y() * transTo->GetScale()->Y() * sin(transTo->GetRotation()),
+						faceTo->A()->X() * transTo->GetScale()->X() * sin(transTo->GetRotation()) + faceTo->A()->Y() * transTo->GetScale()->Y() * cos(transTo->GetRotation()));
+					Coordinates FaceBTo(
+						faceTo->B()->X() * transTo->GetScale()->X() * cos(transTo->GetRotation()) - faceTo->B()->Y() * transTo->GetScale()->Y() * sin(transTo->GetRotation()),
+						faceTo->B()->X() * transTo->GetScale()->X() * sin(transTo->GetRotation()) + faceTo->B()->Y() * transTo->GetScale()->Y() * cos(transTo->GetRotation()));
+					Coordinates FaceCTo(
+						faceTo->C()->X() * transTo->GetScale()->X() * cos(transTo->GetRotation()) - faceTo->C()->Y() * transTo->GetScale()->Y() * sin(transTo->GetRotation()),
+						faceTo->C()->X() * transTo->GetScale()->X() * sin(transTo->GetRotation()) + faceTo->C()->Y() * transTo->GetScale()->Y() * cos(transTo->GetRotation()));
+
+					Coordinates OffsetATo = (*transTo->GetPosition()) + &FaceATo;
+					Coordinates OffsetBTo = (*transTo->GetPosition()) + &FaceBTo;
+					Coordinates OffsetCTo = (*transTo->GetPosition()) + &FaceCTo;
+
+					Coordinates deltaATo = FaceBTo - &FaceATo;
+					Coordinates deltaBTo = FaceCTo - &FaceBTo;
+					Coordinates deltaCTo = FaceATo - &FaceCTo;
+				}
+			}
+		}
+	}
+}

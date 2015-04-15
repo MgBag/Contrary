@@ -16,7 +16,7 @@ Collider::Collider(entityid eid, Model* collider)
 	m_collider = collider;
 }
 
-const Model* Collider::GetCollider()
+Model* Collider::GetCollider()
 {
 	return m_collider;
 }

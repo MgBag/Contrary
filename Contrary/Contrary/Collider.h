@@ -10,7 +10,7 @@ public:
 	Collider();
 	~Collider();
 
-	const Model* GetCollider();
+	Model* GetCollider();
 private:
 	Model* m_collider;
 };

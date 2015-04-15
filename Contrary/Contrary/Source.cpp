@@ -183,8 +183,6 @@ void DisplayThread(map<entityid, Renderer>* renderMap, map<entityid, Transform>*
 				}
 			}
 
-			toProj.SetX(toProj.X() + 0.001);
-
 			al_flip_display();
 
 		}
@@ -206,11 +204,13 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(400, 200), Coordinates(25, 25), 0);
 	physicalMap[eid] = Physical(eid, false);
+	colliderMap[eid] = Collider(eid, m);
 	++eid;
 
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
 	transformMap[eid] = Transform(eid, Coordinates(200, 100), Coordinates(10, 10), 0);
 	physicalMap[eid] = Physical(eid, false);
+	colliderMap[eid] = Collider(eid, m);
 	++eid;
 
 	/*renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));

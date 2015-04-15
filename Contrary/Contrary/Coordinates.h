@@ -12,6 +12,7 @@ public:
 
 	Coordinates operator-(Coordinates* sub);
 	Coordinates operator+(Coordinates* sub);
+
 private:
 	double m_x, m_y;
 };
