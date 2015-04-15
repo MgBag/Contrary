@@ -21,13 +21,13 @@ public:
 	Model();
 
 	vector<Coordinates>* Vertecies();
-	vector<Face>* Faces();
+	vector<vector<Coordinates>>* Faces();
 	ALLEGRO_VERTEX** AlVertecies();
 	int AlVerteciesLength();
 
 private:
 	vector<Coordinates> m_vertecies;
-	vector<Face> m_faces;
+	vector<vector<Coordinates>> m_faces;
 	ALLEGRO_VERTEX* m_alVertecies;
 };
 

@@ -30,11 +30,12 @@ Model::Model(string path)
 				}
 				else if (values[0] == "f")
 				{
-					m_faces.push_back(Face(
+					m_faces.push_back(vector < Coordinates > 
+					{
 						m_vertecies[stoi(values[1].substr(0, values[1].find('/'))) - 1],
 						m_vertecies[stoi(values[2].substr(0, values[2].find('/'))) - 1],
 						m_vertecies[stoi(values[3].substr(0, values[3].find('/'))) - 1]
-						));
+					});
 
 					m_alVertecies;
 				}
@@ -48,9 +49,10 @@ Model::Model(string path)
 
 	for (int i = 0, j = 0; i < m_faces.size(); i++, j += 3)
 	{
-		m_alVertecies[j] = { m_faces[i].A()->X(), m_faces[i].A()->Y(), 0, m_faces[i].A()->X(), m_faces[i].A()->Y(), al_map_rgb(220, 20, 220) };
-		m_alVertecies[j + 1] = { m_faces[i].B()->X(), m_faces[i].B()->Y(), 0, m_faces[i].B()->X(), m_faces[i].B()->Y(), al_map_rgb(220, 20, 220) };
-		m_alVertecies[j + 2] = { m_faces[i].C()->X(), m_faces[i].C()->Y(), 0, m_faces[i].C()->X(), m_faces[i].C()->Y(), al_map_rgb(220, 20, 220) };
+		for (int k = 0; k < m_faces[i].size(); ++k)
+		{
+			m_alVertecies[j + k] = { m_faces[i][k].X(), m_faces[i][k].Y(), 0, m_faces[i][k].X(), m_faces[i][k].Y(), al_map_rgb(220, 20, 220) };
+		}
 	}
 }
 
@@ -61,7 +63,7 @@ Model::~Model()
 Model::Model()
 {
 	m_vertecies = vector<Coordinates>();
-	m_faces = vector<Face>();
+	m_faces = vector<vector<Coordinates>>();
 }
 
 vector<Coordinates>* Model::Vertecies()
@@ -69,7 +71,7 @@ vector<Coordinates>* Model::Vertecies()
 	return &m_vertecies;
 }
 
-vector<Face>* Model::Faces()
+vector<vector<Coordinates>>* Model::Faces()
 {
 	return &m_faces;
 }

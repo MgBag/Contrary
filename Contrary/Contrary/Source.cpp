@@ -160,24 +160,24 @@ void DisplayThread(map<entityid, Renderer>* renderMap, map<entityid, Transform>*
 
 			for (map<entityid, Renderer>::iterator renderer = renderMap->begin(); renderer != renderMap->end(); ++renderer)
 			{
-				vector<Face>* faces = renderer->second.GetModel()->Faces();
+				vector<vector<Coordinates>>* faces = renderer->second.GetModel()->Faces();
 				Transform* transform = &(*transformMap)[renderer->first];
 
-				for (vector<Face>::iterator face = faces->begin(); face < faces->end(); ++face)
+				for (vector<vector<Coordinates>>::iterator face = faces->begin(); face < faces->end(); ++face)
 				{
 					// x: (x * scalex * cos roation - y * scaley * sin rotation) + posx
 					// y: (x * scalex * sin roation + y * scaley * cos rotation) + posy
 					// Three times for the traingle
 
 					al_draw_triangle(
-						(face->A()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->A()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
-						(face->A()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->A()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+						((*face)[0].X() * transform->GetScale()->X() * cos(transform->GetRotation()) - (*face)[0].Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
+						((*face)[0].X() * transform->GetScale()->X() * sin(transform->GetRotation()) + (*face)[0].Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
 
-						(face->B()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->B()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
-						(face->B()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->B()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+						((*face)[1].X() * transform->GetScale()->X() * cos(transform->GetRotation()) - (*face)[1].Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
+						((*face)[1].X() * transform->GetScale()->X() * sin(transform->GetRotation()) + (*face)[1].Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
 
-						(face->C()->X() * transform->GetScale()->X() * cos(transform->GetRotation()) - face->C()->Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
-						(face->C()->X() * transform->GetScale()->X() * sin(transform->GetRotation()) + face->C()->Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
+						((*face)[2].X() * transform->GetScale()->X() * cos(transform->GetRotation()) - (*face)[2].Y() * transform->GetScale()->Y() * sin(transform->GetRotation())) + transform->GetPosition()->X(),
+						((*face)[2].X() * transform->GetScale()->X() * sin(transform->GetRotation()) + (*face)[2].Y() * transform->GetScale()->Y() * cos(transform->GetRotation())) + transform->GetPosition()->Y(),
 
 						renderer->second.GetColor(), 1.0);
 				}
