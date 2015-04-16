@@ -140,36 +140,115 @@ double Physics::Pyth(double a, double b)
 
 void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
 {
-	for (map<entityid, Collider>::iterator col = colliderMap->begin(); col != colliderMap->end(); ++col)
+	for (map<entityid, Collider>::iterator colA = colliderMap->begin(); colA != colliderMap->end(); ++colA)
 	{
-		Model* colMod = col->second.GetCollider();
-		Transform* trans = &(*transformMap)[col->first];
+		Model* colModelA = colA->second.GetCollider();
+		Transform* transA = &(*transformMap)[colA->first];
 
-		for (map<entityid, Collider>::iterator colTo = colliderMap->begin(); colTo != colliderMap->end(); ++colTo)
+		for (map<entityid, Collider>::iterator colB = colliderMap->begin(); colB != colliderMap->end(); ++colB)
 		{
-			Model* colModTo = col->second.GetCollider();
-			Transform* transTo = &(*transformMap)[colTo->first];
+			Model* colModelB = colA->second.GetCollider();
+			Transform* transB = &(*transformMap)[colB->first];
 
-			for (vector<vector<Coordinates>>::iterator face = colMod->Faces()->begin(); face != colMod->Faces()->end(); ++face)
+			for (vector<vector<Coordinates>>::iterator faceA = colModelA->Faces()->begin(); faceA != colModelA->Faces()->end(); ++faceA)
 			{
-				// TODO: List all normals here
-				vector<Coordinates> transFace(3);
-				vector<Coordinates> transFacePos(3);
-				vector<Coordinates> transFaceDelta(3);
+				vector<Coordinates> transFaceA(3);
+				vector<Coordinates> faceNormalsA(3);
+				vector<Coordinates> transFacePosA(3);
+				vector<Coordinates> transFaceDeltaA(3);
 
-				for (int i = 0; i < face->size(); ++i)
+				for (int i = 0; i < faceA->size(); ++i)
 				{
-					transFace[i] = Coordinates(
-						(*face)[i].X() * trans->GetScale()->X() * cos(trans->GetRotation()) - (*face)[i].Y() * trans->GetScale()->Y() * sin(trans->GetRotation()),
-						(*face)[i].X() * trans->GetScale()->X() * sin(trans->GetRotation()) + (*face)[i].Y() * trans->GetScale()->Y() * cos(trans->GetRotation()));
+					faceNormalsA[i] = Coordinates(-(*faceA)[i].Y(), (*faceA)[i].X());
 
-					transFacePos[i] = (*trans->GetPosition()) + &transFace[i];
+					transFaceA[i] = Coordinates(
+						(*faceA)[i].X() * transA->GetScale()->X() * cos(transA->GetRotation()) - (*faceA)[i].Y() * transA->GetScale()->Y() * sin(transA->GetRotation()),
+						(*faceA)[i].X() * transA->GetScale()->X() * sin(transA->GetRotation()) + (*faceA)[i].Y() * transA->GetScale()->Y() * cos(transA->GetRotation()));
+
+					transFacePosA[i] = (*transA->GetPosition()) + &transFaceA[i];
 				}
 
-				transFaceDelta[0] = transFace[1] - &transFace[0];
-				transFaceDelta[1] = transFace[2] - &transFace[1];
-				transFaceDelta[2] = transFace[0] - &transFace[2];
+				transFaceDeltaA[0] = transFaceA[1] - &transFaceA[0];
+				transFaceDeltaA[1] = transFaceA[2] - &transFaceA[1];
+				transFaceDeltaA[2] = transFaceA[0] - &transFaceA[2];
+
+				for (int i = 0; i < faceA->size(); ++i)
+				{
+					faceNormalsA[i] = Coordinates(-transFaceDeltaA[i].Y(), transFaceDeltaA[i].X());
+				}
+
+				for (vector<vector<Coordinates>>::iterator faceB = colModelB->Faces()->begin(); faceB != colModelB->Faces()->end(); ++faceB)
+				{
+					vector<Coordinates> transFaceB(3);
+					vector<Coordinates> transFacePosB(3);
+					vector<Coordinates> transFaceDeltaB(3);
+
+					for (int i = 0; i < faceB->size(); ++i)
+					{
+						faceNormalsA.push_back(Coordinates(-(*faceB)[i].Y(), (*faceB)[i].X()));
+
+						transFaceB[i] = Coordinates(
+							(*faceB)[i].X() * transB->GetScale()->X() * cos(transB->GetRotation()) - (*faceB)[i].Y() * transB->GetScale()->Y() * sin(transB->GetRotation()),
+							(*faceB)[i].X() * transB->GetScale()->X() * sin(transB->GetRotation()) + (*faceB)[i].Y() * transB->GetScale()->Y() * cos(transB->GetRotation()));
+
+						transFacePosB[i] = (*transB->GetPosition()) + &transFaceB[i];
+					}
+
+					transFaceDeltaB[0] = transFaceB[1] - &transFaceB[0];
+					transFaceDeltaB[1] = transFaceB[2] - &transFaceB[1];
+					transFaceDeltaB[2] = transFaceB[0] - &transFaceB[2];
+
+					for (int i = 0; i < faceB->size(); ++i)
+					{
+						faceNormalsA[i] = Coordinates(-transFaceDeltaB[i].Y(), transFaceDeltaB[i].X());
+					}
+
+					for (vector<Coordinates>::iterator normal = faceNormalsA.begin(); normal != faceNormalsA.end(); ++normal)
+					{
+						Coordinates minA;
+						Coordinates maxA;
+						Coordinates minB;
+						Coordinates maxB;
+						
+						// This aint gonna work, the max needs to be added of the offset
+						// faceA
+						for (int i = 0; i < transFaceA.size(); ++i)
+						{
+							if (!i)
+							{
+								minA = GetProjection(&transFacePosA[i], &*normal);
+								maxA = GetProjection(&transFaceDeltaA[i], &*normal);
+							}
+							else
+							{
+								Coordinates	tempMin(GetProjection(&transFacePosA[i], &*normal));
+								Coordinates	tempMax(GetProjection(&transFaceDeltaA[i], &*normal));
+
+								if (Pyth(&minA) > Pyth(&tempMin))
+								{
+									minA = tempMin;
+								}
+
+								if (Pyth(&maxA) < Pyth(&tempMax))
+								{
+									maxA = tempMax;
+								}
+							}
+						}
+
+						// faceB
+						for (int i = 0; i < transFaceA.size(); ++i)
+						{
+
+						}
+						
+						// Get complete projection per faceA
+						// See if they are overlapping, break if not
+					}
+				}
 			}
 		}
 	}
+
+	al_flip_display();
 }

@@ -11,6 +11,7 @@
 #include "Collider.h"
 #include "Physical.h"
 #include "Transform.h"
+#include "Physics.h"
 
 using namespace std;
 
@@ -75,7 +76,16 @@ int main()
 void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
 {
 	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
+	ALLEGRO_DISPLAY* display = 0;
 	ALLEGRO_TIMER* timer = 0;
+	Physics phys;
+
+	display = al_create_display(SCREEN_W, SCREEN_H);
+	if (!display)
+	{
+		cout << "Failed to initiate display \n";
+		system("pause");
+	}
 
 	eventQueue = al_create_event_queue();
 	if (!eventQueue)
@@ -101,18 +111,7 @@ void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
-			for (map<entityid, Physical>::iterator phys = physicalMap->begin(); phys != physicalMap->end(); ++phys)
-			{
-				if (phys->second.GetMoveable())
-				{
-					Velocity* vel = phys->second.GetVelocity();
-					Coordinates* pos = (*transformMap)[phys->first].GetPosition();
-
-					// Add gravity to Y: (old y + gravity/s / tick) * time_scale
-					vel->SetY((vel->Y() + GRAVITY / TICK) * TIME_SCALE);
-					pos->SetY(pos->Y() + vel->Y());
-				}
-			}
+			phys.Collide(colliderMap, transformMap, physicalMap);
 		}
 	}
 }
@@ -202,7 +201,7 @@ void InitEntities(vector<Model>& models, map<entityid, Renderer>& renderMap, map
 	Model* m = &models[0];
 
 	renderMap[eid] = Renderer(eid, m, al_map_rgb(20, 220, 20));
-	transformMap[eid] = Transform(eid, Coordinates(400, 200), Coordinates(25, 25), 0);
+	transformMap[eid] = Transform(eid, Coordinates(400, 200), Coordinates(25, 25), -0.5);
 	physicalMap[eid] = Physical(eid, false);
 	colliderMap[eid] = Collider(eid, m);
 	++eid;
