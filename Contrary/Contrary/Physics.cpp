@@ -140,12 +140,12 @@ double Physics::Pyth(double a, double b)
 
 void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transform>* transformMap, map<entityid, Physical>* physicalMap)
 {
-	for (map<entityid, Collider>::iterator colA = colliderMap->begin(); colA != colliderMap->end(); ++colA)
+	for (map<entityid, Collider>::iterator colA = colliderMap->begin(); colA != prev(colliderMap->end()); ++colA)
 	{
 		Model* colModelA = colA->second.GetCollider();
 		Transform* transA = &(*transformMap)[colA->first];
 
-		for (map<entityid, Collider>::iterator colB = colliderMap->begin(); colB != colliderMap->end(); ++colB)
+		for (map<entityid, Collider>::iterator colB = next(colA); colB != colliderMap->end(); ++colB)
 		{
 			Model* colModelB = colA->second.GetCollider();
 			Transform* transB = &(*transformMap)[colB->first];
@@ -153,14 +153,12 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 			for (vector<vector<Coordinates>>::iterator faceA = colModelA->Faces()->begin(); faceA != colModelA->Faces()->end(); ++faceA)
 			{
 				vector<Coordinates> transFaceA(3);
-				vector<Coordinates> faceNormalsA(3);
+				vector<Coordinates> faceNormals(6);
 				vector<Coordinates> transFacePosA(3);
 				vector<Coordinates> transFaceDeltaA(3);
 
 				for (int i = 0; i < faceA->size(); ++i)
 				{
-					faceNormalsA[i] = Coordinates(-(*faceA)[i].Y(), (*faceA)[i].X());
-
 					transFaceA[i] = Coordinates(
 						(*faceA)[i].X() * transA->GetScale()->X() * cos(transA->GetRotation()) - (*faceA)[i].Y() * transA->GetScale()->Y() * sin(transA->GetRotation()),
 						(*faceA)[i].X() * transA->GetScale()->X() * sin(transA->GetRotation()) + (*faceA)[i].Y() * transA->GetScale()->Y() * cos(transA->GetRotation()));
@@ -174,7 +172,7 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 
 				for (int i = 0; i < faceA->size(); ++i)
 				{
-					faceNormalsA[i] = Coordinates(-transFaceDeltaA[i].Y(), transFaceDeltaA[i].X());
+					faceNormals[i] = Coordinates(-transFaceDeltaA[i].Y(), transFaceDeltaA[i].X());
 				}
 
 				for (vector<vector<Coordinates>>::iterator faceB = colModelB->Faces()->begin(); faceB != colModelB->Faces()->end(); ++faceB)
@@ -185,8 +183,6 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 
 					for (int i = 0; i < faceB->size(); ++i)
 					{
-						faceNormalsA.push_back(Coordinates(-(*faceB)[i].Y(), (*faceB)[i].X()));
-
 						transFaceB[i] = Coordinates(
 							(*faceB)[i].X() * transB->GetScale()->X() * cos(transB->GetRotation()) - (*faceB)[i].Y() * transB->GetScale()->Y() * sin(transB->GetRotation()),
 							(*faceB)[i].X() * transB->GetScale()->X() * sin(transB->GetRotation()) + (*faceB)[i].Y() * transB->GetScale()->Y() * cos(transB->GetRotation()));
@@ -200,51 +196,84 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 
 					for (int i = 0; i < faceB->size(); ++i)
 					{
-						faceNormalsA[i] = Coordinates(-transFaceDeltaB[i].Y(), transFaceDeltaB[i].X());
+						faceNormals[i + 3] = Coordinates(-transFaceDeltaB[i].Y(), transFaceDeltaB[i].X());
 					}
 
-					for (vector<Coordinates>::iterator normal = faceNormalsA.begin(); normal != faceNormalsA.end(); ++normal)
+					al_clear_to_color(al_map_rgb(20, 20, 20));
+					al_draw_line(0, SCREEN_H / 2, SCREEN_W, SCREEN_H / 2, al_map_rgb(120, 120, 120), 1);
+					al_draw_line(SCREEN_W / 2, 0, SCREEN_W / 2, SCREEN_H, al_map_rgb(120, 120, 120), 1);
+
+					for (vector<Coordinates>::iterator normal = faceNormals.begin(); normal != faceNormals.end(); ++normal)
 					{
 						Coordinates minA;
 						Coordinates maxA;
 						Coordinates minB;
 						Coordinates maxB;
 						
-						// This aint gonna work, the max needs to be added of the offset
 						// faceA
 						for (int i = 0; i < transFaceA.size(); ++i)
 						{
 							if (!i)
 							{
 								minA = GetProjection(&transFacePosA[i], &*normal);
-								maxA = GetProjection(&transFaceDeltaA[i], &*normal);
+								maxA = GetProjection(&transFacePosA[i], &*normal);
 							}
 							else
 							{
-								Coordinates	tempMin(GetProjection(&transFacePosA[i], &*normal));
-								Coordinates	tempMax(GetProjection(&transFaceDeltaA[i], &*normal));
+								Coordinates	temp(GetProjection(&transFacePosA[i], &*normal));
 
-								if (Pyth(&minA) > Pyth(&tempMin))
+								if (Pyth(&temp) < Pyth(&minA))
 								{
-									minA = tempMin;
+									minA = temp;
 								}
-
-								if (Pyth(&maxA) < Pyth(&tempMax))
+								else if (Pyth(&temp) > Pyth(&maxA))
 								{
-									maxA = tempMax;
+									maxA = temp;
 								}
 							}
 						}
 
 						// faceB
-						for (int i = 0; i < transFaceA.size(); ++i)
+						for (int i = 0; i < transFaceB.size(); ++i)
 						{
+							if (!i)
+							{
+								minB = GetProjection(&transFacePosB[i], &*normal);
+								maxB = GetProjection(&transFacePosB[i], &*normal);
+							}
+							else
+							{
+								Coordinates	temp(GetProjection(&transFacePosB[i], &*normal));
 
+								if (Pyth(&temp) < Pyth(&minB))
+								{
+									minB = temp;
+								}
+								else if (Pyth(&temp) > Pyth(&maxB))
+								{
+									maxB = temp;
+								}
+							}
 						}
 						
-						// Get complete projection per faceA
+						al_draw_line(
+							minA.X() / 2 + SCREEN_W / 2,
+							minA.Y() / 2 + SCREEN_H / 2,
+							maxA.X() / 2 + SCREEN_W / 2,
+							maxA.Y() / 2 + SCREEN_H / 2,
+							al_map_rgb(220, 20, 220), 1);
+
+						al_draw_line(
+							minB.X() / 2 + SCREEN_W / 2,
+							minB.Y() / 2 + SCREEN_H / 2,
+							maxB.X() / 2 + SCREEN_W / 2,
+							maxB.Y() / 2 + SCREEN_H / 2,
+							al_map_rgb(220, 220, 20), 1);
+
 						// See if they are overlapping, break if not
 					}
+
+					al_flip_display();
 				}
 			}
 		}

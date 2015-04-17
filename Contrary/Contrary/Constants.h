@@ -1,4 +1,5 @@
 #pragma once
+#include <iterator> 
 typedef double entityid;
 
 extern int SCREEN_H;

@@ -112,6 +112,7 @@ void PhysicsThread(map<entityid, Collider>* colliderMap, map<entityid, Transform
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
 			phys.Collide(colliderMap, transformMap, physicalMap);
+			(*transformMap)[0].SetRotation((*transformMap)[0].GetRotation() + 0.01);
 		}
 	}
 }
