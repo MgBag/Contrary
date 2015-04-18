@@ -256,6 +256,7 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 							}
 						}
 						
+						// VISUAL DEBUG
 						al_draw_line(
 							minA.X() / 2 + SCREEN_W / 2,
 							minA.Y() / 2 + SCREEN_H / 2,
@@ -269,6 +270,8 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 							maxB.X() / 2 + SCREEN_W / 2,
 							maxB.Y() / 2 + SCREEN_H / 2,
 							al_map_rgb(220, 220, 20), 1);
+						// VISUAL DEBUG
+
 
 						// See if they are overlapping, break if not
 					}
