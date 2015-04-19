@@ -272,7 +272,19 @@ void Physics::Collide(map<entityid, Collider>* colliderMap, map<entityid, Transf
 							al_map_rgb(220, 220, 20), 1);
 						// VISUAL DEBUG
 
+						double aMin = Pyth(&minA);
+						double aMax = Pyth(&maxA);
+						double bMin = Pyth(&minB);
+						double bMax = Pyth(&maxB);
 
+						if ((aMin < bMin ? aMax : bMax) > (aMin > bMin ? aMin : bMin))
+						{
+							cout << "Collision :D" << endl;
+						}
+						else
+						{
+
+						}
 						// See if they are overlapping, break if not
 					}
 
